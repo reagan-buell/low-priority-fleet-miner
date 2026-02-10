@@ -14,32 +14,33 @@ echo "=== Starting LPFM Watchdog (GPU Cap: $GPU_LIMIT%) ==="
 
 while true; do
     # 1. Fetch tegrastats data (one-shot)
-    # timeout ensures it exits even if it doesn't support --count
-    # head -n 1 captures the first line of output
-    STATS=$(timeout 0.5 tegrastats | head -n 1)
+    # We use stdbuf to ensure the output isn't buffered and timeout to catch it
+    STATS=$(stdbuf -oL tegrastats | head -n 1)
     
     # 2. Parse CPU Temperature
-    # Look for anything ending in @XX.XC or @XXC
-    TEMP=$(echo "$STATS" | grep -oE '[A-Z0-9]+@[0-9.]+' | head -1 | cut -d@ -f2 | cut -d. -f1)
-    TEMP=${TEMP:-0}
+    # Based on: CPU@67.812C
+    TEMP=$(echo "$STATS" | grep -oP 'CPU@\K[0-9.]+' | head -1 | cut -d. -f1)
     
     # 3. Parse GPU Utilization (GR3D_FREQ)
-    # Flexible match for "GR3D_FREQ XX%"
-    GPU_UTIL=$(echo "$STATS" | grep -o 'GR3D_FREQ [0-9]\+%' | grep -o '[0-9]\+' | head -1)
-    GPU_UTIL=${GPU_UTIL:-0}
+    # Based on: GR3D_FREQ 61%@[0]
+    GPU_UTIL=$(echo "$STATS" | grep -oP 'GR3D_FREQ \K[0-9]+(?=%)' | head -1)
     
     # 4. Check BarBoards CPU Usage
     BARBOARDS_PID=$(pgrep -f "BarBoards" | head -1)
     if [ -n "$BARBOARDS_PID" ]; then
-        # Try ps first, fallback to top
         BARBOARDS_CPU=$(ps -p "$BARBOARDS_PID" -o %cpu= | awk '{print int($1)}' 2>/dev/null || echo 0)
     else
         BARBOARDS_CPU=0
     fi
 
+    # Fallback/Safety Defaults
+    TEMP=${TEMP:-0}
+    GPU_UTIL=${GPU_UTIL:-0}
+    BARBOARDS_CPU=${BARBOARDS_CPU:-0}
+
     # Debug: If values are 0, log the raw stats to help me diagnose
-    if [ "$GPU_UTIL" -eq 0 ] && [ "$TEMP" -eq 0 ]; then
-        echo "DEBUG: Raw Stats: $STATS" >> /home/bb/low-priority-fleet-miner/tegrastats_debug.log
+    if ([ "$GPU_UTIL" -eq 0 ] && [ "$TEMP" -eq 0 ]) || [ -z "$STATS" ]; then
+        echo "$(date) - DEBUG: Raw Stats (Empty or 0): '$STATS'" >> /home/bb/low-priority-fleet-miner/tegrastats_debug.log
     fi
 
     # Ensure we have integers for comparison
