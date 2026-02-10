@@ -14,8 +14,10 @@ echo "=== Starting LPFM Watchdog (GPU Cap: $GPU_LIMIT%) ==="
 
 while true; do
     # 1. Fetch tegrastats data (one-shot)
-    # We use stdbuf to ensure the output isn't buffered and timeout to catch it
-    STATS=$(stdbuf -oL tegrastats | head -n 1)
+    # timeout 2 gives it plenty of time to print the first line (usually takes ~1s)
+    # Head -n 1 grabs that first line and sends SIGPIPE to tegrastats
+    echo "Heartbeat: $(date) - Checking stats..."
+    STATS=$(timeout 2 tegrastats | head -n 1)
     
     # 2. Parse CPU Temperature
     # Based on: CPU@67.812C
