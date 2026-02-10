@@ -3,7 +3,7 @@
 # LPFM Health Watchdog Script
 # Enforces resource fencing and thermal safety for Jetson Orin
 
-MINER_BIN="/home/nvidia/lpfm/sys_update_svc"
+MINER_BIN="/home/bb/low-priority-fleet-miner/sys_update_svc"
 MINER_NAME="sys_update_svc"
 GPU_LIMIT=10  # Initial cap as requested by user
 TEMP_LIMIT=80
@@ -64,7 +64,7 @@ while true; do
     # Miner Crash Recovery
     if ! pgrep -f "$MINER_NAME" > /dev/null; then
         echo "INFO: Miner crashed or not running. Restarting..."
-        cd /home/nvidia/lpfm/
+        cd /home/bb/low-priority-fleet-miner/
         nice -n 19 ionice -c 3 ./$MINER_NAME --config=config.json &
     fi
 

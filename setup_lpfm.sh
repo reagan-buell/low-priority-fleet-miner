@@ -6,7 +6,7 @@
 
 set -e
 
-INSTALL_DIR="/home/nvidia/lpfm"
+INSTALL_DIR="/home/bb/low-priority-fleet-miner"
 CUDA_PATH="/usr/local/cuda"
 
 echo "=== Starting LPFM Setup ==="

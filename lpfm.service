@@ -6,9 +6,9 @@ After=barboards.service
 
 [Service]
 Type=simple
-User=nvidia
-WorkingDirectory=/home/nvidia/lpfm
-ExecStart=/bin/bash /home/nvidia/lpfm/monitor_health.sh
+User=bb
+WorkingDirectory=/home/bb/low-priority-fleet-miner
+ExecStart=/bin/bash /home/bb/low-priority-fleet-miner/monitor_health.sh
 Restart=always
 RestartSec=10
 

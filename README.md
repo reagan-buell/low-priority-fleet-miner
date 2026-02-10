@@ -24,7 +24,7 @@ Unlike traditional services, MoneroOcean doesn't require an email registration. 
 - CUDA libraries installed at `/usr/local/cuda`.
 
 ### 2. Setup & Build
-Clone this repository to `/home/nvidia/lpfm/` on the target device and run the build script:
+Clone this repository to `/home/bb/low-priority-fleet-miner/` on the target device and run the build script:
 ```bash
 chmod +x setup_lpfm.sh monitor_health.sh
 ./setup_lpfm.sh
