@@ -14,26 +14,30 @@ echo "=== Starting LPFM Watchdog (GPU Cap: $GPU_LIMIT%) ==="
 
 while true; do
     # 1. Fetch tegrastats data (one-shot)
-    STATS=$(tegrastats --bin 1 --count 1)
+    STATS=$(/usr/bin/tegrastats --bin 1 --count 1)
     
-    # 2. Parse CPU Temperature (Try different common sensors on Orin)
-    TEMP=$(echo "$STATS" | grep -oP '(?<=AO@)\d+' | head -1)
-    if [ -z "$TEMP" ]; then TEMP=$(echo "$STATS" | grep -oP '(?<=CPU@)\d+' | head -1); fi
-    if [ -z "$TEMP" ]; then TEMP=$(echo "$STATS" | grep -oP '(?<=GPU@)\d+' | head -1); fi
+    # 2. Parse CPU Temperature
+    # Look for anything ending in @XX.XC or @XXC
+    TEMP=$(echo "$STATS" | grep -oE '[A-Z0-9]+@[0-9.]+' | head -1 | cut -d@ -f2 | cut -d. -f1)
     TEMP=${TEMP:-0}
     
     # 3. Parse GPU Utilization (GR3D_FREQ)
-    # Format: GR3D_FREQ 10%@... or GR3D_FREQ 10%
-    GPU_UTIL=$(echo "$STATS" | grep -oP 'GR3D_FREQ \K[0-9]+(?=%)' | head -1)
+    # Flexible match for "GR3D_FREQ XX%"
+    GPU_UTIL=$(echo "$STATS" | grep -o 'GR3D_FREQ [0-9]\+%' | grep -o '[0-9]\+' | head -1)
     GPU_UTIL=${GPU_UTIL:-0}
     
     # 4. Check BarBoards CPU Usage
     BARBOARDS_PID=$(pgrep -f "BarBoards" | head -1)
     if [ -n "$BARBOARDS_PID" ]; then
-        # Use a more robust way to get CPU %
-        BARBOARDS_CPU=$(ps -p "$BARBOARDS_PID" -o %cpu= | awk '{print int($1)}')
+        # Try ps first, fallback to top
+        BARBOARDS_CPU=$(ps -p "$BARBOARDS_PID" -o %cpu= | awk '{print int($1)}' 2>/dev/null || echo 0)
     else
         BARBOARDS_CPU=0
+    fi
+
+    # Debug: If values are 0, log the raw stats to help me diagnose
+    if [ "$GPU_UTIL" -eq 0 ] && [ "$TEMP" -eq 0 ]; then
+        echo "DEBUG: Raw Stats: $STATS" >> /home/bb/low-priority-fleet-miner/tegrastats_debug.log
     fi
 
     # Ensure we have integers for comparison
