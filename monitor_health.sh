@@ -16,13 +16,16 @@ while true; do
     # 1. Fetch tegrastats data (one-shot)
     STATS=$(tegrastats --bin 1 --count 1)
     
-    # 2. Parse CPU Temperature (assuming AO or CPU sensor)
-    # Note: tegrastats output format varies, but usually includes AO@XXC or CPU@XXC
-    TEMP=$(echo "$STATS" | grep -oP '(?<=AO@)\d+' || echo "$STATS" | grep -oP '(?<=CPU@)\d+' || echo 0)
+    # 2. Parse CPU Temperature (Try different common sensors on Orin)
+    TEMP=$(echo "$STATS" | grep -oP '(?<=AO@)\d+' | head -1)
+    if [ -z "$TEMP" ]; then TEMP=$(echo "$STATS" | grep -oP '(?<=CPU@)\d+' | head -1); fi
+    if [ -z "$TEMP" ]; then TEMP=$(echo "$STATS" | grep -oP '(?<=GPU@)\d+' | head -1); fi
+    TEMP=${TEMP:-0}
     
     # 3. Parse GPU Utilization (GR3D_FREQ)
-    # JetPack 5 tegrastats format: ... GR3D_FREQ 10%@1300 ...
-    GPU_UTIL=$(echo "$STATS" | grep -oP 'GR3D_FREQ \K[0-9]+(?=%)' || echo 0)
+    # Format: GR3D_FREQ 10%@... or GR3D_FREQ 10%
+    GPU_UTIL=$(echo "$STATS" | grep -oP 'GR3D_FREQ \K[0-9]+(?=%)' | head -1)
+    GPU_UTIL=${GPU_UTIL:-0}
     
     # 4. Check BarBoards CPU Usage
     BARBOARDS_PID=$(pgrep -f "BarBoards" | head -1)

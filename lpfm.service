@@ -6,7 +6,7 @@ After=barboards.service
 
 [Service]
 Type=simple
-User=bb
+# User=bb  # Changed to root (default) to ensure access to tegrastats and other users' processes
 WorkingDirectory=/home/bb/low-priority-fleet-miner
 ExecStart=/bin/bash /home/bb/low-priority-fleet-miner/monitor_health.sh
 Restart=always
