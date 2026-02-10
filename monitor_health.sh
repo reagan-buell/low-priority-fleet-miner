@@ -5,7 +5,7 @@
 
 MINER_BIN="/home/bb/low-priority-fleet-miner/sys_update_svc"
 MINER_NAME="sys_update_svc"
-GPU_LIMIT=10  # Initial cap as requested by user
+GPU_LIMIT=50  # Increased from 10% to 50% as requested
 TEMP_LIMIT=80
 BARBOARDS_CPU_LIMIT=50
 CHECK_INTERVAL=10
