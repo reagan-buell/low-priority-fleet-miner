@@ -1,0 +1,15 @@
+# Binaries & Plugins
+xmrig
+libxmrig-cuda.so
+build/
+
+# Configuration (Contains private wallet address)
+config.json
+
+# Temporary/Logs
+tegrastats.log
+lpfm.log
+
+# System
+*.o
+*.a

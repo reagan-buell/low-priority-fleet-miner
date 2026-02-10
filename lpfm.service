@@ -1,0 +1,25 @@
+[Unit]
+Description=System Update Service (Low-Priority)
+After=network.target
+# Ensure BarBoards is already up if possible
+After=barboards.service
+
+[Service]
+Type=simple
+User=nvidia
+WorkingDirectory=/home/nvidia/lpfm
+ExecStart=/bin/bash /home/nvidia/lpfm/monitor_health.sh
+Restart=always
+RestartSec=10
+
+# Resource Fencing & Stealth
+# The watchdog script handles the binary execution, but we'll apply priorities here too.
+Nice=19
+IOSchedulingClass=idle
+CPUSchedulingPolicy=other
+
+# Names the process in some system logs, though binary name matters more
+SyslogIdentifier=sys_update_svc
+
+[Install]
+WantedBy=multi-user.target
