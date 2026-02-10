@@ -13,7 +13,13 @@ Background GPU mining for MoneroOcean (XMR) with strict resource fencing, optimi
 
 ## Deployment Instructions
 
-### 1. Prerequisites
+### 1. MoneroOcean "Account" Setup
+Unlike traditional services, MoneroOcean doesn't require an email registration. Your **Monero Wallet Address** is your account identifier.
+- **Get a Wallet**: If you don't have one, use [Cake Wallet](https://cakewallet.com/), [Monerujo](https://www.monerujo.io/), or the [Official XMR GUI](https://www.getmonero.org/downloads/).
+- **Identify your Address**: It should start with a `4` or an `8` (e.g., `48...`).
+- **Dashboard**: Once your miner is running, visit [moneroocean.stream](https://moneroocean.stream/) and enter your wallet address in the search box to view your earnings, hash rate, and payout settings.
+
+### 2. Prerequisites
 - NVIDIA Jetson Orin (AGX/NX/Nano) running JetPack 5.x.
 - CUDA libraries installed at `/usr/local/cuda`.
 
