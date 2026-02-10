@@ -14,7 +14,9 @@ echo "=== Starting LPFM Watchdog (GPU Cap: $GPU_LIMIT%) ==="
 
 while true; do
     # 1. Fetch tegrastats data (one-shot)
-    STATS=$(tegrastats --count 1)
+    # timeout ensures it exits even if it doesn't support --count
+    # head -n 1 captures the first line of output
+    STATS=$(timeout 0.5 tegrastats | head -n 1)
     
     # 2. Parse CPU Temperature
     # Look for anything ending in @XX.XC or @XXC
