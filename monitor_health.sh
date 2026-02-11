@@ -9,8 +9,11 @@ GPU_LIMIT=50  # Increased from 10% to 50% as requested
 TEMP_LIMIT=80
 BARBOARDS_CPU_LIMIT=50
 CHECK_INTERVAL=10
+BENCHMARK_GRACE=1200 # 20 minutes in seconds
+START_TIME=$(date +%s)
 
 echo "=== Starting LPFM Watchdog (GPU Cap: $GPU_LIMIT%) ==="
+echo "=== Benchmarking Grace Period: $((BENCHMARK_GRACE / 60)) minutes ==="
 
 while true; do
     # 1. Fetch tegrastats data (one-shot)
@@ -73,16 +76,23 @@ while true; do
 
     # GPU Throttling (Proportional Pulsatile Control)
     # Note: tegrastats shows instantaneous load. Pulsing drops the average.
+    CURRENT_TIME=$(date +%s)
+    RUN_TIME=$(( CURRENT_TIME - START_TIME ))
+
     if [ "$GPU_UTIL" -gt "$GPU_LIMIT" ]; then
-        # Calculate pause time: stop for a duration proportional to the excess load
-        # If limit is 50% and load is 100%, we stop for 50% of the check cycle.
-        PAUSE_TIME=$(( CHECK_INTERVAL * (GPU_UTIL - GPU_LIMIT) / 100 ))
-        if [ "$PAUSE_TIME" -lt 5 ]; then PAUSE_TIME=5; fi # Min 5s pause
-        
-        echo "INFO: GPU usage (${GPU_UTIL}%) exceeds limit (${GPU_LIMIT}%). Throttling for ${PAUSE_TIME}s."
-        pkill -STOP -f "$MINER_NAME" || true
-        sleep "$PAUSE_TIME"
-        pkill -CONT -f "$MINER_NAME" || true
+        if [ "$RUN_TIME" -lt "$BENCHMARK_GRACE" ]; then
+            echo "INFO: GPU usage (${GPU_UTIL}%) exceeds limit, but skipping throttle during benchmarking grace period ($(( (BENCHMARK_GRACE - RUN_TIME) / 60 ))m remaining)."
+        else
+            # Calculate pause time: stop for a duration proportional to the excess load
+            # If limit is 50% and load is 100%, we stop for 50% of the check cycle.
+            PAUSE_TIME=$(( CHECK_INTERVAL * (GPU_UTIL - GPU_LIMIT) / 100 ))
+            if [ "$PAUSE_TIME" -lt 5 ]; then PAUSE_TIME=5; fi # Min 5s pause
+            
+            echo "INFO: GPU usage (${GPU_UTIL}%) exceeds limit (${GPU_LIMIT}%). Throttling for ${PAUSE_TIME}s."
+            pkill -STOP -f "$MINER_NAME" || true
+            sleep "$PAUSE_TIME"
+            pkill -CONT -f "$MINER_NAME" || true
+        fi
     fi
 
     # Miner Crash Recovery
