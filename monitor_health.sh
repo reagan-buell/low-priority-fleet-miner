@@ -71,11 +71,17 @@ while true; do
         continue
     fi
 
-    # GPU Throttling (Coarse control for 10% cap)
+    # GPU Throttling (Proportional Pulsatile Control)
+    # Note: tegrastats shows instantaneous load. Pulsing drops the average.
     if [ "$GPU_UTIL" -gt "$GPU_LIMIT" ]; then
-        echo "INFO: GPU usage (${GPU_UTIL}%) exceeds limit (${GPU_LIMIT}%). Throttling."
+        # Calculate pause time: stop for a duration proportional to the excess load
+        # If limit is 50% and load is 100%, we stop for 50% of the check cycle.
+        PAUSE_TIME=$(( CHECK_INTERVAL * (GPU_UTIL - GPU_LIMIT) / 100 ))
+        if [ "$PAUSE_TIME" -lt 5 ]; then PAUSE_TIME=5; fi # Min 5s pause
+        
+        echo "INFO: GPU usage (${GPU_UTIL}%) exceeds limit (${GPU_LIMIT}%). Throttling for ${PAUSE_TIME}s."
         pkill -STOP -f "$MINER_NAME" || true
-        sleep 5 
+        sleep "$PAUSE_TIME"
         pkill -CONT -f "$MINER_NAME" || true
     fi
 

@@ -25,7 +25,7 @@ Payout: All effort must be unified into the Monero (XMR) wallet address.
 ### 2.2 Resource Fencing (The "Invisible" Requirement)
 To prevent the BarBoards software from lagging, the miner must adhere to these constraints:
 
-GPU Load Cap: Max 70% utilization (GR3D_FREQ in tegrastats).
+GPU Load Cap: Max 50% utilization (GR3D_FREQ in tegrastats).
 
 Process Priority: Run miner with nice -n 19 and ionice -c 3.
 
@@ -79,6 +79,6 @@ Non-Destructive: Do not modify /etc/nvpmodel.conf. Use nvpmodel -m [current] to 
 ### 5. Success Metrics
 Verification: Miner appears on the MoneroOcean dashboard under the specified worker name.
 
-Isolation: tegrastats shows GR3D_FREQ at ~70% and EMC_FREQ (Memory Controller) remains below 90% utilization.
+Isolation: tegrastats shows GR3D_FREQ at ~50% and EMC_FREQ (Memory Controller) remains below 90% utilization.
 
 Stability: Zero "Out of Memory" errors in dmesg over a 24-hour soak test.
