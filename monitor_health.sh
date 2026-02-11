@@ -9,7 +9,7 @@ GPU_LIMIT=50  # Increased from 10% to 50% as requested
 TEMP_LIMIT=80
 BARBOARDS_CPU_LIMIT=50
 CHECK_INTERVAL=10
-BENCHMARK_GRACE=1200 # 20 minutes in seconds
+BENCHMARK_GRACE=7200 # 2 hours in seconds
 START_TIME=$(date +%s)
 
 echo "=== Starting LPFM Watchdog (GPU Cap: $GPU_LIMIT%) ==="
